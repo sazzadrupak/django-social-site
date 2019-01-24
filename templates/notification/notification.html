@@ -1,0 +1,52 @@
+{% load static from staticfiles %}
+<li class="dropdown menu-li" id="notification_li">
+    <a href="#" class="dropdown-toggle notification_icon" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+        <!--<span class="glyphicon glyphicon-comment" style="font-size:20px;"></span>-->
+        <i class="fa fa-bell"></i>
+        <span class="badge badge-notify">
+            {% if notifications %}
+                {{ cout_not_read_notification|length }}
+            {% else %}
+                0
+            {% endif %}
+        </span>
+    </a>
+
+    <ul class="dropdown-menu notify-drop">
+        {% if notifications %}
+        <div class="drop-content">
+            {% for notification in notifications %}
+            <li>
+                <div class="col-md-3 col-sm-3 col-xs-3">
+                    <div class="notify-img">
+                        {% if notification.from_user.normaluser.profile_photo == '' %}
+                            <img width="50" height="50" src="{% static "normaluser/images/avatar_2x.png" %}" alt="avatar">
+                        {% else %}
+                            <img width="50" height="50" src="{% static notification.from_user.normaluser.profile_photo.url %}" alt="avatar">
+                        {% endif %}
+
+                    </div>
+                </div>
+                <div class="col-md-9 col-sm-9 col-xs-9 pd-l0">
+                    {{ notification.notification_text|safe  }}
+                    <hr>
+                    <p class="time">
+                        {% now "Y-m-d" as todays_date %}
+                        {% if notification.created_at|date:"Y-m-d" == todays_date %}
+                            {{ notification.created_at|timesince }} ago
+                        {% else %}
+                            {{ notification.created_at|date:"N j, o," }} {{ notification.created_at|time:"P"}}
+                        {% endif %}
+                    </p>
+                </div>
+            </li>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="notify-drop-footer text-center">
+            No notification found
+        </div>
+        {% endif %}
+    </ul>
+
+</li>

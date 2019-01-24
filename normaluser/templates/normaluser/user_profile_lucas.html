@@ -1,0 +1,77 @@
+{% extends "layout.html" %}
+{% block title %} {{ profile_data.username }} {% endblock %}
+{% load static from staticfiles %}
+{% block static %}
+	<link rel="stylesheet" type="text/css" href="{% static 'normaluser/css/layout.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'home/css/home.css' %}">
+{% endblock %}
+{% block content %}
+    <div id="home-page">
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-12"><h1>{{ profile_data.username }}</h1></div>
+            </div>
+            <div class="row">
+                <div class="col-sm-3"><!--left col-->
+                    <div class="text-center">
+                        {% if profile_data.profile_photo == '' %}
+                            <img src="{% static "normaluser/images/avatar_2x.png" %}" class="avatar img-circle img-thumbnail" alt="avatar">
+                        {% else %}
+                            <img src="{% static profile_data.profile_photo.url %}" width="180" height="180" alt="avatar">
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-sm-9">
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="view">
+                            <table class="table table-user-information">
+                                <tbody>
+                                    <tr>
+                                        <td>Username:</td>
+                                        <td>{{ profile_data.username }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>First name</td>
+                                        <td>{{ profile_data.first_name }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Last name</td>
+                                        <td>{{ profile_data.last_name }}</td>
+                                    </tr>
+
+                                    {%  if is_friend > 0 %}
+                                    <tr>
+                                        <td>Gender</td>
+                                        <td>
+                                            {% if profile_data.gender == 'm' %}
+                                            Male
+                                            {% else %}
+                                            Female
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Home Address</td>
+                                        <td>{{ profile_data.address }}</td>
+                                    </tr>
+
+                                    <tr>
+                                        <td>Email</td>
+                                        <td><a href="{{ profile_data.email }}">{{ profile_data.email }}</a></td>
+                                    </tr>
+
+                                    <tr>
+                                        <td>Phone Number</td>
+                                        <td>{{ profile_data.phone_number }}</td>
+                                    </tr>
+                                    {% endif %}
+                                </tbody>
+                            </table>
+                            <hr>
+                        </div><!--/tab-pane-->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

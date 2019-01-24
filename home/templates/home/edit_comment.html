@@ -1,0 +1,45 @@
+<form role="form" class="form-horizontal comment_edit" method="post">
+    {% csrf_token %}
+    <input type="hidden" name="comment_id" value="{{ comment_id }}" />
+    <input type="hidden" name="post_id" value="{{ post_id }}" />
+    {% for field in comment_text_form.visible_fields %}
+        {% if field.errors %}
+            <div class="input-group error">
+                {{ field }}
+                <span class="input-group-btn">
+                    <button class="btn btn-info" type="submit">Comment</button>
+                </span>
+                <span class="help-inline">
+                    {% for error in  field.errors %}{{ error }}{% endfor %}
+                </span>
+            </div>
+        {% else %}
+            <div class="input-group">
+                {{ field }}
+                <span class="input-group-btn">
+                    <button class="btn btn-warning cancel_comment_edit" type="button" data-post_id="{{ post_id }}" data-comment_id="{{ comment_id }}">Cancel</button>
+                </span>
+                <span class="input-group-btn">
+                    <button class="btn btn-info" type="submit">Comment</button>
+                </span>
+                {% if field.help_text %}
+                    <p class="help-inline"><small>{{ field.help_text }}</small></p>
+                {% endif %}
+            </div>
+        {% endif %}
+    {% endfor %}
+    {% for field in comment_text_form.hidden_fields %}
+        <div class="input-group">
+            {{ field }}
+        </div>
+    {% endfor %}
+    {% for field in comment_text_form.non_field_errors %}
+        <div class="form-group has-error has-feedback">
+            <div class="controls">
+                <span class="help-block">
+                    {{ field }}
+                </span>
+            </div>
+        </div>
+    {% endfor %}
+</form>

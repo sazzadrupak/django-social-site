@@ -1,0 +1,263 @@
+{% extends "layout.html" %}
+{% block title %} Home {% endblock %}
+{% load static from staticfiles %}
+{% block static %}
+    <script src="{% static '/home/js/home.js' %}"></script>
+{% endblock %}
+{% block content %}
+<div id="home-page">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-8 activity">
+                <div class="status-upload">
+                    <form role="form" class="form-horizontal" method="post">
+                        {% csrf_token %}
+                        {% for field in status_text_form %}
+                            {% if field.errors %}
+0                                <div class="form-group error">
+                                    <div class="controls">{{ field }}
+                                        <span class="help-inline">
+                                            {% for error in  field.errors %}{{ error }}{% endfor %}
+                                        </span>
+                                    </div>
+                                </div>
+                            {% else %}
+                                <div class="form-group">
+                                    <div class="controls">{{ field }}
+                                        {% if field.help_text %}
+                                            <p class="help-inline"><small>{{ field.help_text }}</small></p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                        {% for field in status_text_form.non_field_errors %}
+                            <div class="form-group has-error has-feedback">
+                                <div class="controls">
+                                    <span class="help-block">
+                                        {{ field }}
+                                    </span>
+                                </div>
+                            </div>
+                        {% endfor %}
+                        <div class="form-group text-right">
+                            <button type="submit" class="btn btn-primary">Post update</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="status-show">
+                    {% if posts|length > 0 %}
+                        {% for post in posts %}
+                            <div class="panel panel-default">
+                                <div class="panel-body">
+                                    <section class="post-heading">
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div class="media">
+                                                    <div class="media-left">
+                                                        <a href="#">
+                                                            {% if post.user.normaluser.profile_photo == '' %}
+                                                                <img src="{% static "normaluser/images/avatar_2x.png" %}" width="40" height="40" alt="avatar">
+                                                            {% else %}
+                                                                <img src="{{ post.user.normaluser.profile_photo.url }}" width="40" height="40" alt="avatar">
+                                                            {% endif %}
+                                                        </a>
+                                                    </div>
+                                                    <div class="media-body">
+                                                            <h4 class="media-heading">
+                                                                {% if post.user.id == user.id %}
+                                                                    {{ post.user.first_name }} {{ post.user.last_name }}
+                                                                {% else %}
+                                                                    <a href="{% url 'normaluser:other' post.user  %}">{{ post.user.first_name }} {{ post.user.last_name }}</a>
+                                                                {% endif %}
+                                                            </h4>
+                                                        {% now "Y-m-d" as todays_date %}
+                                                        {% if post.created_at|date:"Y-m-d" == todays_date %}
+                                                            <a href="javascript:void(0)" class="anchor-time">{{ post.created_at|timesince }} ago </a>
+                                                        {% else %}
+                                                            <a href="javascript:void(0)" class="anchor-time">{{ post.created_at|date:"Y-m-d H:i" }}</a>
+                                                        {% endif %}
+
+
+                                                    </div>
+                                                    {% if user.id == post.user_id %}
+                                                    <div class="media-right">
+                                                        <a href="javascript:void(0)" data-toggle="popover" data-placement="bottom" data-post_id="{{ post.id }}">
+                                                            <i class="fa fa-ellipsis-h"></i>
+                                                        </a>
+                                                    </div>
+
+                                                    <div id="popover-content-{{ post.id }}" style="display: none">
+                                                        <ul class="list-group custom-popover">
+                                                            <li class="list-group-item"><a href="{% url 'home:edit_post' post.id %}" onclick="return confirm('Are you sure?')">Edit</a></li>
+                                                            <li class="list-group-item"><a href="{% url 'home:delete_post' post.id %}" onclick="return confirm('Are you sure?')">Delete</a></li>
+                                                        </ul>
+                                                    </div>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </section>
+                                    <section class="post-body">
+                                        <p>{{ post.post_text }}</p>
+                                    </section>
+                                    <section class="post-footer">
+                                        <hr>
+                                        <div class="post-footer-comment-wrapper">
+                                            <div class="comment-form">
+                                                <form role="form" class="form-horizontal comment_submit" method="post" id="comment_add_{{ post.id }}">
+                                                    {% csrf_token %}
+                                                    <input type="hidden" name="post_id" value="{{ post.id }}" />
+                                                    {% for field in comment_text_form.visible_fields %}
+                                                        {% if field.errors %}
+                                                            <div class="input-group error">
+                                                                {{ field }}
+                                                                <span class="input-group-btn">
+                                                                    <button class="btn btn-primary" type="submit">Comment</button>
+                                                                </span>
+                                                                <span class="help-inline">
+                                                                    {% for error in  field.errors %}{{ error }}{% endfor %}
+                                                                </span>
+                                                            </div>
+                                                        {% else %}
+                                                            <div class="input-group">
+                                                                {{ field }}
+                                                                <span class="input-group-btn">
+                                                                    <button class="btn btn-primary" type="submit">Comment</button>
+                                                                </span>
+                                                                {% if field.help_text %}
+                                                                    <p class="help-inline"><small>{{ field.help_text }}</small></p>
+                                                                {% endif %}
+                                                            </div>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                    {% for field in comment_text_form.hidden_fields %}
+                                                        <div class="input-group">
+                                                            {{ field }}
+                                                        </div>
+                                                    {% endfor %}
+                                                    {% for field in comment_text_form.non_field_errors %}
+                                                        <div class="form-group has-error has-feedback">
+                                                            <div class="controls">
+                                                                <span class="help-block">
+                                                                    {{ field }}
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    {% endfor %}
+                                                </form>
+                                            </div>
+                                            <hr>
+                                            <div class="comment_of_status" id="comment_of_status_{{ post.id }}">
+                                                <ul class="comments_list">
+                                                    {% for each in post.comments.all|dictsort:'created_at' %}
+                                                    <li id="comment_li_{{ each.id }}">
+                                                        <div class="image_of_comment_user">
+                                                            {% if each.user.normaluser.profile_photo == '' %}
+                                                                <img src="{% static "normaluser/images/avatar_2x.png" %}" alt="avatar">
+                                                            {% else %}
+                                                                <img src="{{ each.user.normaluser.profile_photo.url }}" alt="avatar">
+                                                            {% endif %}
+                                                            <span class="username_text">
+                                                                {% if each.user.id == user.id %}
+                                                                    {{ each.user.first_name }} {{ each.user.last_name }}
+                                                                {% else %}
+                                                                    <a href="{% url 'normaluser:other' each.user  %}">
+                                                                        {{ each.user.first_name }} {{ each.user.last_name }}
+                                                                    </a>
+                                                                {% endif %}
+                                                            </span>
+                                                            {% now "Y-m-d" as todays_date %}
+                                                            {% if each.created_at|date:"Y-m-d" == todays_date %}
+                                                                <span class="date_time_text">{{ each.created_at|timesince }} ago</span>
+                                                            {% else %}
+                                                                <span class="date_time_text">on {{ each.created_at|date:"D d M Y H:i" }}</span>
+                                                            {% endif %}
+                                                        </div>
+                                                        <div class="comment_text">
+                                                            <p id="comment_area_{{ each.id }}" style="float: left;">
+                                                                {{ each.comment_text }}
+                                                            </p>
+                                                            {% if user.id == post.user_id or request.user.id == each.user_id %}
+                                                            <span style="float: right;">
+                                                                <a href="javascript:void(0)" data-toggle="popover-comment" data-placement="bottom" data-post_id="{{ each.id }}">
+                                                                    <i class="fa fa-ellipsis-h"></i>
+                                                                </a>
+                                                            </span>
+                                                            {% endif %}
+                                                            <div id="popover-comment-content-{{ each.id }}" style="display: none">
+                                                                <ul class="list-group custom-popover">
+                                                                    {% if request.user.id == each.user_id %}
+                                                                        <li class="list-group-item"><a class="edit_comment_event" data-comment_id="{{ each.id }}">Edit</a></li>
+                                                                    {% endif %}
+                                                                    <li class="list-group-item">
+                                                                        <a
+                                                                                class="delete_comment"
+                                                                                data-post_id="{{ post.id }}"
+                                                                                data-comment_id="{{ each.id }}">Delete
+                                                                        </a>
+                                                                    </li>
+                                                                </ul>
+                                                            </div>
+                                                        </div>
+                                                    </li>
+                                                    {% endfor %}
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </section>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-md-4 other-user-list">
+                <div class="panel panel-default user_panel">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">People you may know !</h3>
+                    </div>
+                    <div class="panel-body">
+                        <div class="table-container">
+                            <table class="table-users table" border="0">
+                                <tbody>
+                                {% for other_user in other_users %}
+
+                                    <tr>
+                                        <td width="10">
+                                            {% if other_user.normaluser.profile_photo == '' %}
+                                                <img src="{% static "normaluser/images/avatar_2x.png" %}" width="40" height="40" alt="avatar">
+                                            {% else %}
+                                                <img src="{{ other_user.normaluser.profile_photo.url }}" width="40" height="40" alt="avatar">
+                                            {% endif %}
+                                        </td>
+                                        <td class="user_name_in_cell">
+                                            <a href="{% url 'normaluser:other' other_user.username  %}">
+                                                {{ other_user.first_name }} {{ other_user.last_name }}
+                                            </a>
+                                        </td>
+                                        <td class="table_cell_form">
+                                            <form method="post" action="{% url 'friends:create_friendship' %}">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="user_two_id" value="{{ other_user.id }}" />
+                                                <input type="hidden" name="user_one_id" value="{{ user.id }}" />
+                                                <input type="hidden" name="lead_user_id" value="{{ user.id }}" />
+                                                <div class="form-group" style="margin-bottom: 0px !important;"> <!-- Submit button !-->
+                                                    <button type="submit" class="btn btn-primary">Send request</button>
+                                                </div>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

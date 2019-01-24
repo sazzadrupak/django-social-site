@@ -1,0 +1,221 @@
+{% extends "layout.html" %}
+{% block title %} Friends list {% endblock %}
+{% load static from staticfiles %}
+{% block static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'friends/css/friends.css' %}">
+{% endblock %}
+{% block content %}
+<div id="friend-list-page">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4 friends">
+                <div class="panel panel-default user_panel">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Your friend(s)</h3>
+                    </div>
+                    <div class="panel-body">
+                        <div class="table-container">
+                            <table class="table-users table" border="0">
+                                <tbody>
+                                {% if friends.count > 0 %}
+                                    {% for friend in friends %}
+                                        <tr>
+                                            <td width="10">
+                                                {% if user.id == friend.user_one_id %}
+                                                    {% if friend.user_two.normaluser.profile_photo == '' %}
+                                                        <img width="50" height="50" src="{% static "normaluser/images/avatar_2x.png" %}" alt="avatar">
+                                                    {% else %}
+                                                        <img width="50" height="50" src="{{ friend.user_two.normaluser.profile_photo.url }}" alt="avatar">
+                                                    {% endif %}
+                                                {% else %}
+                                                    {% if friend.user_one.normaluser.profile_photo == '' %}
+                                                        <img width="50" height="50" src="{% static "normaluser/images/avatar_2x.png" %}" alt="avatar">
+                                                    {% else %}
+                                                        <img width="50" height="50" src="{{ friend.user_one.normaluser.profile_photo.url }}" alt="avatar">
+                                                    {% endif %}
+                                                {% endif %}
+                                            </td>
+                                            <td class="user_name_in_cell" >
+                                                {% if user.id == friend.user_one_id %}
+                                                     <a href="{% url 'normaluser:other' friend.user_two %}">
+                                                        {{ friend.user_two.first_name }} {{ friend.user_two.last_name }}
+                                                     </a>
+                                                {% else %}
+                                                    <a href="{% url 'normaluser:other' friend.user_one %}">
+                                                        {{ friend.user_one.first_name }} {{ friend.user_one.last_name }}
+                                                     </a>
+                                                {% endif %}
+                                            </td>
+                                            <td class="table_cell_form">
+                                                <form method="post" action="{% url 'friends:delete_friendship_request' %}">
+                                                    {% csrf_token %}
+                                                    <input type="hidden" name="request_id" value="{{ friend.id }}" />
+                                                    <input type="hidden" name="friendship_status" value="4" />
+                                                    <div class="form-group" style="margin-bottom: 0px !important;"> <!-- Submit button !-->
+                                                        <button
+                                                                type="submit"
+                                                                class="btn btn-danger"
+                                                                title="Delete friendship"
+                                                        onclick="return confirm('Are you sure?')">
+                                                            <i class="glyphicon glyphicon-remove-circle"></i>
+                                                        </button>
+                                                    </div>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                {% else %}
+                                <p>You have no friends right now</p>
+                                {% endif %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 sent_friend_request">
+                <div class="panel panel-default user_panel">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Request sent to</h3>
+                    </div>
+                    <div class="panel-body">
+                        <div class="table-container">
+                            <table class="table-users table" border="0">
+                                <tbody>
+                                {% if requested.count > 0 %}
+                                    {% for request_to in requested %}
+                                        <tr>
+                                            <td width="10">
+                                                {% if request_to.user_two.normaluser.profile_photo == '' %}
+                                                    <img width="50" height="50" src="{% static "normaluser/images/avatar_2x.png" %}" alt="avatar">
+                                                {% else %}
+                                                    <img width="50" height="50" src="{{ request_to.user_two.normaluser.profile_photo.url }}" alt="avatar">
+                                                {% endif %}
+                                            </td>
+                                            <td class="user_name_in_cell">
+                                                <a href="{% url 'normaluser:other' request_to.user_two  %}">
+                                                    {{ request_to.user_two.first_name }} {{ request_to.user_two.last_name }}
+                                                </a>
+                                            </td>
+                                            <td class="table_cell_form">
+                                                <form method="post" action="{% url 'friends:delete_friendship_request' %}">
+                                                    {% csrf_token %}
+                                                    <input type="hidden" name="request_id" value="{{ request_to.id }}" />
+                                                    <input type="hidden" name="friendship_status" value="3" />
+                                                    <div class="form-group" style="margin-bottom: 0px !important;"> <!-- Submit button !-->
+                                                        <button
+                                                                type="submit"
+                                                                class="btn btn-danger"
+                                                                title="Remove request"
+                                                                onclick="return confirm('Are you sure?')">
+                                                            <i class="glyphicon glyphicon-remove-circle"></i>
+                                                        </button>
+                                                    </div>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                {% else %}
+                                <p>You have not sent any friend request</p>
+                                {% endif %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 list_of_requests">
+                <div class="panel panel-default user_panel">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Request from</h3>
+                    </div>
+                    <div class="panel-body">
+                        <div class="table-container">
+                            <table class="table-users table" border="0">
+                                <thead>
+                                    <tr>
+                                        <td>Image</td>
+                                        <td>User name</td>
+                                        <td>
+                                            Full name
+                                        </td>
+                                        <td>
+                                            Sent time
+                                        </td>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                {% if request_lists.count > 0 %}
+                                    {% for item in request_lists %}
+                                        <tr>
+                                            <td width="10">
+                                                {% if item.user_one.normaluser.profile_photo == '' %}
+                                                    <img width="50" height="50" src="{% static "normaluser/images/avatar_2x.png" %}" alt="avatar">
+                                                {% else %}
+                                                    <img width="50" height="50" src="{{ item.user_one.normaluser.profile_photo.url }}" alt="avatar">
+                                                {% endif %}
+                                            </td>
+                                            <td class="user_name_in_cell">
+                                                <a href="{% url 'normaluser:other' item.user_one  %}">
+                                                    {{ item.user_one.first_name }} {{ item.user_one.last_name }}
+                                                </a>
+                                            </td>
+                                            <td class="user_name_in_cell">
+                                                {{ item.user_one.first_name }} {{ item.user_one.last_name }}
+                                            </td>
+                                            <td class="user_name_in_cell">
+                                                {% now "Y-m-d" as todays_date %}
+                                                {% if item.created_at|date:"Y-m-d" == todays_date %}
+                                                    <p>{{ item.created_at|timesince }} ago</p>
+                                                {% else %}
+                                                    <p>{{ item.created_at|date:"N j, o," }} {{ item.created_at|time:"P"}}</p>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="2">
+
+                                            </td>
+                                            <td class="table_cell_form" colspan="2">
+                                                <form method="post" action="{% url 'friends:accept_friendship_request' %}">
+                                                    {% csrf_token %}
+                                                    <input type="hidden" name="request_id" value="{{ item.id }}" />
+                                                    <div class="form-group" style="margin-bottom: 0px !important;"> <!-- Submit button !-->
+                                                        <button
+                                                                type="submit"
+                                                                class="btn btn-success"
+                                                                title="Accept request">
+                                                            <i class="glyphicon glyphicon-thumbs-up"></i>
+                                                        </button>
+                                                    </div>
+                                                </form>
+                                                <form method="post" action="{% url 'friends:delete_friendship_request' %}">
+                                                    {% csrf_token %}
+                                                    <input type="hidden" name="request_id" value="{{ item.id }}" />
+                                                    <input type="hidden" name="friendship_status" value="2" />
+                                                    <div class="form-group" style="margin-bottom: 0px !important;"> <!-- Submit button !-->
+                                                        <button
+                                                                type="submit"
+                                                                class="btn btn-danger"
+                                                                title="Decline request"
+                                                            onclick="return confirm('Are you sure?')">
+                                                            <i class="glyphicon glyphicon-thumbs-down"></i>
+                                                        </button>
+                                                    </div>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <p>No friend requests</p>
+                                {% endif %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

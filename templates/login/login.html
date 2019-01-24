@@ -1,0 +1,69 @@
+{% extends "frontend.html" %}
+{% load static %}
+{% block title %} Login {% endblock %}
+
+{% block content %}
+    <section id="form-box">
+        <div class="header bg-olive">
+            <img src="{% static 'bwa2018djangoproject/frontend/images/logo.png' %}" alt="app logo" />
+                <br />
+            <span class="app_lbl">Welcome to our social app</span>
+        </div>
+        <div class="body ">
+            <form role="form" method="post">
+            {% csrf_token %}
+            {% for field in login_form %}
+                {% if field.errors %}
+                    <div class="form-group error">
+                        <label class="control-label">{{ field.label }}</label>
+                        <div class="controls">{{ field }}
+                            <span class="help-inline">
+                                {% for error in  field.errors %}{{ error }}{% endfor %}
+                            </span>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="form-group">
+                        <label class="control-label">{{ field.label }}</label>
+                        <div class="controls">{{ field }}
+                            {% if field.help_text %}
+                                <p class="help-inline"><small>{{ field.help_text }}</small></p>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endif %}
+            {% endfor %}
+            {% for field in login_form.non_field_errors %}
+                <div class="form-group has-error has-feedback">
+                    <div class="controls">
+                        <span class="help-block">
+                            {{ field }}
+                        </span>
+                    </div>
+                </div>
+            {% endfor %}
+                <div class="footer">
+                    <div class="col-sm-6">
+                    <button type="submit" class="btn btn-primary btn-block">Login</button>
+                    </div>
+                <!--For google login-->
+                    <hr/>
+                    <div class="align-center">
+                        <a href="{% url 'social:begin' 'google-oauth2'%}">
+                            <img src="{% static 'bwa2018djangoproject/frontend/images/google_sign_btn.png' %}" alt="google signin icon" width="150" />
+                        </a>
+                    </div>
+                <!--For google login-->
+            </div>
+            <div class="form-group">
+                <span class="float-left">
+                    <i class="fa fa-edit"></i> <a href="{% url 'registration' %}">Register</a>
+                </span>
+                <span style="float: right">
+                    <i class="fa fa-key"></i><a href="{% url 'password_reset' %}"> Forgot your password?</a>
+                </span>
+            </div>
+            </form>
+        </div>
+    </section>
+{% endblock %}

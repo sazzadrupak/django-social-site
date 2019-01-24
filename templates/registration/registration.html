@@ -1,0 +1,113 @@
+{% extends "frontend.html" %}
+{% load static %}
+{% block title %} Registration {% endblock %}
+
+{% block content %}
+    <section id="register-box">
+        <div class="header bg-olive">
+            <img src="{% static 'bwa2018djangoproject/frontend/images/logo.png' %}" />
+                <br />
+        </div>
+        <div class="body">
+                <h3 class="text-center">Registration</h3>
+                    <form class="form-horizontal" role="form" method="post" action="">
+                        {% csrf_token %}
+                        {% for field in user_form %}
+                            {% if field.errors %}
+                                <div class="form-group has-error has-feedback">
+                                    <label class="control-label">{{ field.label }}</label>
+                                    <div class="controls">{{ field }}
+                                        <span class="help-block">
+                                            {% for error in  field.errors %}{{ error }}{% endfor %}
+                                        </span>
+                                    </div>
+                                </div>
+                            {% else %}
+
+                                <div class="form-group">
+                                    <label class="control-label">{{ field.label }} *</label>
+                                    <div class="controls">{{ field }}
+                                        {% if field.help_text %}
+                                            <p class="help-inline"><small>{{ field.help_text }}</small></p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% for field in user_form.non_field_errors %}
+                            <div class="form-group has-error has-feedback">
+                                <div class="controls">
+                                    <span class="help-block">
+                                        {{ field }}
+                                    </span>
+                                </div>
+                            </div>
+                        {% endfor %}
+
+                        {% for field in profile_form %}
+                            {% if field.errors %}
+                                <div class="form-group has-error has-feedback">
+                                    <label class="control-label">{{ field.label }}</label>
+                                    <div class="controls">{{ field }}
+                                        <span class="help-block">
+                                            {% for error in  field.errors %}{{ error }}{% endfor %}
+                                        </span>
+                                    </div>
+                                </div>
+                            {% else %}
+                                {% if field.label is 'Gender' %}
+                                    <label class="radio-inline"><input type="radio" name="optradio" checked>Option 1</label>
+                                {% else %}
+                                    <div class="form-group">
+                                        <label class="control-label">{{ field.label }}</label>
+                                        <div class="controls">{{ field }}
+                                            {% if field.help_text %}
+                                                <p class="help-inline"><small>{{ field.help_text }}</small></p>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            {% endif %}
+                        {% endfor %}
+                        <div class="form-group">
+                            <label class="control-label">Date of birth</label>
+                            <div class="input-group">
+                                <span class="input-group-btn">
+                                    <select class="form-control" name="day" id="day">
+                                        <option value="">Day</option>
+                                        {% for day in days %}
+                                            <option value="{{ day }}">{{ day }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </span>
+                                <span class="input-group-btn">
+                                    <select class="form-control" name="month" id="month">
+                                        <option value="">Month</option>
+                                        {% for month in months %}
+                                            <option value="{{ month }}">{{ month }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </span>
+                                <span class="input-group-btn">
+                                    <select class="form-control" name="year" id="year">
+                                        <option value="">Year</option>
+                                        {% for year in years %}
+                                            <option value="{{ year }}">{{ year }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="footer">
+                            <div class="col-sm-6 form-group">
+                            <button type="submit" class="btn btn-primary">Submit</button>
+                            <a type="button" href="{% url 'login' %}" class="btn btn-danger">Cancel</a>
+                        </div>
+                </form>
+        </div>
+
+    </section>
+{% endblock %}
+
+  <!--login-->

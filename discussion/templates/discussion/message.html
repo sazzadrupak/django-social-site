@@ -1,0 +1,103 @@
+{% extends "layout.html" %}
+{% block title %} Chat history {% endblock %}
+{% load static from staticfiles %}
+{% block static %}
+    <script src="{% static '/discussion/js/message.js' %}"></script>
+{% endblock %}
+{% block content %}
+{% now "Y-m-d" as todays_date %}
+<div id="friend-list-page">
+    <div class="container">
+        <div class="discussion_div">
+            <div class="discussion_head_messages">
+                <div class="search" style="background-color: #f8f8f8;">
+                    <form method="post" class="single_discussion_search">
+                        {% csrf_token %}
+                        <input type="text" placeholder="search by message text" name="text_search_value" class="text_search_value" />
+                        <i class="fa fa-search"></i>
+                    </form>
+                </div>
+                <div class="loader"></div>
+                <div class="head_msg_history" id="head_msg_history_{{ discussion_head_id }}">
+                {% if chats %}
+                    <input type="hidden" name="discussion_head_id" value="{{ discussion_head_id }}" />
+                        {% for chat in chats %}
+                            {% if chat.sender_id == user.id %}
+                                <div class="outgoing_message" id="message_text_{{ chat.id }}">
+                                    <div class="sent_message">
+                                        <span style="float: left;">
+                                            <a class="message_popover" href="javascript:void(0)" data-toggle="popover" data-placement="bottom" data-toggle="popover" data-post_id="{{ chat.id }}">
+                                                <i class="fa fa-ellipsis-h"></i>
+                                            </a>
+                                        </span>
+                                        <p id="message_area_{{ chat.id }}">{{ chat.message }}</p>
+                                        {% if chat.updated_at|date:"Y-m-d" == todays_date %}
+                                            <span class="sent_time_date">{{ chat.created_at|timesince }} ago</span>
+                                        {% else %}
+                                            <span class="sent_time_date">{{ chat.created_at|date:"N j, o," }}
+                                                {{ chat.updated_at|time:"P"}}
+                                            </span>
+                                        {% endif %}
+                                    </div>
+                                    <div id="popover-content-{{ chat.id }}" style="display: none">
+                                        <ul class="list-group custom-popover">
+                                            <li class="list-group-item"><a class="edit_chat_event" data-chat_id="{{ chat.id }}">Edit</a></li>
+                                            <li class="list-group-item"><a class="delete_chat_event" data-chat_id="{{ chat.id }}">Delete</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            {% else %}
+                                <div class="incoming_msg">
+                                    <div class="incoming_msg_img">
+                                        {% if chat.sender.normaluser.profile_photo == '' %}
+                                            <img width="40" height="40" src="{% static "normaluser/images/avatar_2x.png" %}" alt="{{ chat.sender.first_name }} {{ chat.sender.last_name }}">
+                                        {% else %}
+                                            <img width="40" height="40" src="{% static chat.sender.normaluser.profile_photo.url %}" alt="{{ chat.sender.first_name }} {{ chat.sender.last_name }}">
+                                        {% endif %}
+                                    </div>
+                                    <div class="received_message">
+                                        <div class="received_message_width">
+                                            <span class="sender_name">{{ chat.sender.first_name }} {{ chat.sender.last_name }}</span>
+                                            <p>{{ chat.message }}</p>
+                                            {% if chat.updated_at|date:"Y-m-d" == todays_date %}
+                                                <span class="sent_time_date">{{ chat.created_at|timesince }} ago</span>
+                                            {% else %}
+                                                <span class="sent_time_date">{{ chat.created_at|date:"N j, o," }}
+                                                    {{ chat.updated_at|time:"P"}}
+                                                </span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                {% else %}
+                    <input type="hidden" name="discussion_head_id" value="0">
+                {% endif %}
+                </div>
+                <div class="type_new_message">
+                    <form method="post" class="add_chat" name="add_chat">
+                        {% csrf_token %}
+                        <div class="input_message_write error">
+                        {% for field in discussion_form %}
+                            {% if field.errors %}
+                                {{ field }}
+                                <span class="help-inline">
+                                    {% for error in  field.errors %}{{ error }}{% endfor %}
+                                </span>
+                            {% else %}
+                                {{ field }}
+                                {% if field.help_text %}
+                                    <p class="help-inline"><small>{{ field.help_text }}</small></p>
+                                {% endif %}
+                            {% endif %}
+                        {% endfor %}
+                        <button class="message_send_btn" type="submit"><i class="fa fa-paper-plane-o" aria-hidden="true"></i></button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

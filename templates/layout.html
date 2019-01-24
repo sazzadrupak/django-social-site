@@ -1,0 +1,117 @@
+{% load static %}
+{% load static from staticfiles %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>
+        {% block title %}
+        {% endblock %}
+    </title>
+        <!--favicon section-->
+        <link rel="apple-touch-icon" sizes="180x180" href="{% static 'bwa2018djangoproject/frontend/images/favicon/apple-touch-icon.png' %}/">
+        <link rel="icon" type="image/png" sizes="32x32" href="{% static 'bwa2018djangoproject/frontend/images/favicon/favicon-32x32.png' %}/">
+        <link rel="icon" type="image/png" sizes="16x16" href="{% static 'bwa2018djangoproject/frontend/images/favicon/favicon-16x16.png' %}/">
+        <link rel="mask-icon" href="{% static 'bwa2018djangoproject/frontend/images/favicon/safari-pinned-tab.svg' %}/" color="#5bbad5"/>
+        <meta name="msapplication-TileColor" content="#da532c">
+        <meta name="theme-color" content="#ffffff">
+        <!--favicon section-->
+    <link rel="stylesheet" type="text/css" href="{% static 'bwa2018djangoproject/bootstrap/css/bootstrap.css' %}" >
+    <link rel="stylesheet" type="text/css" href="{% static 'bwa2018djangoproject/bootstrap/css/bootstrap-theme.css' %}" >
+    <link rel="stylesheet" type="text/css" href="{% static 'bwa2018djangoproject/frontend/css/style.css' %}" >
+    <link rel="stylesheet" type="text/css" href="{% static 'bwa2018djangoproject/frontend/css/notification.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'bwa2018djangoproject/frontend/css/font-awesome.min.css' %}" >
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <!-- jQuery library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+    <script src="{% static 'bwa2018djangoproject/bootstrap/js/bootstrap.js' %}"></script>
+    <script src="{% static 'bwa2018djangoproject/frontend/js/notification.js' %}"></script>
+    <script src="{% static 'bwa2018djangoproject/frontend/js/discussion.js' %}"></script>
+    {% block static %}{% endblock %}
+</head>
+<body class="body">
+    <nav class="navbar navbar-default navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header navbar-header-logo">
+                <a href="{% url 'home:home' %}">
+                    <img src="{% static 'bwa2018djangoproject/frontend/images/logo.png' %}" alt="app logo"/>
+                </a>
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                </button>
+            </div>
+            <div id="navbar" class="navbar-collapse collapse">
+                <form class="navbar-form navbar-left form-inline col-sm-3" role="search">
+                    <div class="input-group">
+                          <input type="text" class="form-control" id="all_search" placeholder="Search here">
+                            <span class="input-group-addon"><i class="fa fa-search" style="left: auto"></i></span>
+                    </div>
+                </form>
+                <ul class="nav navbar-nav navbar-right menu-ul">
+                    <li class="{% if request.resolver_match.url_name == 'home' %}active{% endif %} menu-li">
+                        <a class="menu-a" href="{% url 'home:home' %}">Home</a>
+                    </li>
+                    <li class="{% if request.resolver_match.url_name == 'profile' %}active{% endif %} menu-li">
+                        <a class="menu-a" href="{% url 'normaluser:profile' %}">Profile</a>
+                    </li>
+                    <li class="{% if request.resolver_match.url_name == 'friend_list' %}active{% endif %} menu-li">
+                        <a class="menu-a" href="{% url 'friends:friend_list' %}">Friends</a>
+                    </li>
+
+                    {% include "./discussion/discussion.html" %}
+                    {% include "./notification/notification.html" %}
+
+                    <li class="dropdown menu-li">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                        <div class="media-left">
+                            {% if user.is_authenticated %}
+                                {% if user.normaluser.profile_photo == '' %}
+                                    <img src="{% static "normaluser/images/avatar_2x.png" %}" alt="user avatar" width="40" height="40" />
+                                {% else %}
+                                    <img src="{% static user.normaluser.profile_photo.url %}" alt="user avatar" width="40" height="40" />
+                                {% endif %} {{user.last_name}}<span class="caret"></span>
+                            {% endif %}
+                        </div>
+
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="menu-a" href="{% url 'normaluser:profile' %}">Profile</a></li>
+                            <li><a class="menu-a" onClick="return confirm('You sure? All your data will be deleted.');" href="{% url 'normaluser:delete_account' %}">Delete account</a></li>
+                            <li><a class="menu-a" href="{% url 'logout' %}">Logout</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div><!--/.nav-collapse -->
+        </div>
+    </nav>
+    <div id="page-title-info">
+        <div class="container">
+            {% if messages %}
+            <div class="row">
+                <div class="col-sm-12 text-center">
+                {% for message in messages %}
+                <div data-alert class="alert alert-{% if message.tags %}{{ message.tags }}{% endif %}">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            <div class="row">
+                <div class="col-md-6 page-name">
+                    <h1>{{ page_name }}</h1>
+                </div>
+                <div class="col-md-6">
+
+                </div>
+            </div>
+        </div>
+    </div>
+    {% block content %}{% endblock %}
+</body>
+</html>

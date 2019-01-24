@@ -1,0 +1,23 @@
+{% extends "frontend.html" %}
+{% block title %} Activate account {% endblock %}
+{% block content %}
+<a class="btn btn-info login-btn" href="{% url 'login' %}">Login</a>
+    <section id="loginform" class="outer-wrapper">
+        <div class="inner-wrapper">
+            <div class="container">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="jumbotron">
+                            <h1>Hi {{ first_name }} {{ last_name }},</h1>
+                            <p class="lead">Thanks for signing up with Social site! You must follow this link to activate your account:</p>
+                            <p><a class="btn btn-lg btn-success"
+                                  href="{% url 'email_authenticate_registration' email_validation_code=email_authentication_code %}"
+                                  role="button">Activate your account</a>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}

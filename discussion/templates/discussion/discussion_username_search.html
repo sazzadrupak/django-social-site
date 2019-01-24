@@ -1,0 +1,54 @@
+{% load static from staticfiles %}
+{% block static %}
+{% endblock %}
+
+{% now "Y-m-d" as todays_date %}
+{% if discussion_heads %}
+    {% for discussion_head in discussion_heads %}
+        <div class="chat_list {% if discussion_heads.0.id == discussion_head.id %}active_chat{% endif %}" id="chat_head_{{ discussion_head.id }}" >
+            <div class="chat_head" data-discussion_head_id="{{ discussion_head.id }}">
+                <div class="user_img">
+                    {% if discussion_head.messages.all|length > 0 %}
+                        {% if discussion_head.messages.last.sender.normaluser.profile_photo == '' %}
+                            <img width="40" height="40" src="{% static "normaluser/images/avatar_2x.png" %}" alt="avatar">
+                        {% else %}
+                            <img width="40" height="40" src="{% static discussion_head.messages.last.sender.normaluser.profile_photo.url %}" alt="avatar">
+                        {% endif %}
+                    {% else %}
+                        {% if discussion_head.created_by.normaluser.profile_photo == '' %}
+                            <img width="40" height="40" src="{% static "normaluser/images/avatar_2x.png" %}" alt="avatar">
+                        {% else %}
+                            <img width="40" height="40" src="{% static discussion_head.created_by.normaluser.profile_photo.url %}" alt="avatar">
+                        {% endif %}
+                    {% endif %}
+                </div>
+                <div class="head_item">
+                    <h5>{{ discussion_head.head_name }}
+                    {% if discussion_head.messages.all|length > 0 %}
+                       {% if discussion_head.messages.last.updated_at|date:"Y-m-d" == todays_date %}
+                            <span class="chat_date">{{ discussion_head.messages.last.updated_at|timesince }} ago</span>
+                        {% else %}
+                            <span class="chat_date">{{ discussion_head.messages.last.updated_at|date:"N j, o," }}
+                            {{ discussion_head.messages.last.updated_at|time:"P"}}
+                            </span>
+                        {% endif %}
+                    {% else %}
+                        {% if discussion_head.updated_at|date:"Y-m-d" == todays_date %}
+                            <span class="chat_date">{{ discussion_head.updated_at|timesince }} ago</span>
+                        {% else %}
+                            <span class="chat_date">{{ discussion_head.updated_at|date:"N j, o," }}
+                                {{ discussion_head.updated_at|time:"P"}}
+                            </span>
+                        {% endif %}
+                    {% endif %}
+                    </h5>
+                    {% if discussion_head.messages.all|length > 0 %}
+                        <p>{{ discussion_head.messages.last.sender.first_name }} {{ discussion_head.messages.last.sender.last_name }}: {{ discussion_head.messages.last.message|truncatechars:30 }}</p>
+                    {% else %}
+                        <p>Empty discussion in this head</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+{% endif %}

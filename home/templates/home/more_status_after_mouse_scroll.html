@@ -1,0 +1,109 @@
+{% if posts|length > 0 %}
+    <input type="hidden" class="data" value="1" />
+    {% for post in posts %}
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <section class="post-heading">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="media">
+                                <div class="media-left">
+                                    <a href="#">
+                                        <img class="media-object photo-profile" src="http://0.gravatar.com/avatar/38d618563e55e6082adf4c8f8c13f3e4?s=40&amp;d=mm&amp;r=g" width="40" height="40" alt="...">
+                                    </a>
+                                </div>
+                                <div class="media-body">
+                                    <a href="javascript:void(0)" class="anchor-username">
+                                        <h4 class="media-heading">{{ post.user }}</h4>
+                                    </a>
+                                    {% now "Y-m-d" as todays_date %}
+                                    {% if post.created_at|date:"Y-m-d" == todays_date %}
+                                        <a href="javascript:void(0)" class="anchor-time">{{ post.created_at|timesince }} ago</a>
+                                    {% else %}
+                                        <a href="javascript:void(0)" class="anchor-time">{{ post.created_at|date:"Y-m-d" }}</a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <section class="post-body">
+                    <p>{{ post.post_text }}</p>
+                </section>
+                <section class="post-footer">
+                    <hr>
+                    <div class="post-footer-comment-wrapper">
+                        <div class="comment-form">
+                            <form role="form" class="form-horizontal comment_submit" method="post" id="comment_add_{{ post.id }}">
+                                {% csrf_token %}
+                                <input type="hidden" name="post_id" value="{{ post.id }}" />
+                                {% for field in comment_text_form.visible_fields %}
+                                    {% if field.errors %}
+                                        <div class="input-group error">
+                                            {{ field }}
+                                            <span class="input-group-btn">
+                                                <button class="btn btn-info" type="submit">Comment</button>
+                                            </span>
+                                            <span class="help-inline">
+                                                {% for error in  field.errors %}{{ error }}{% endfor %}
+                                            </span>
+                                        </div>
+                                    {% else %}
+                                        <div class="input-group">
+                                            {{ field }}
+                                            <span class="input-group-btn">
+                                                <button class="btn btn-info" type="submit">Comment</button>
+                                            </span>
+                                            {% if field.help_text %}
+                                                <p class="help-inline"><small>{{ field.help_text }}</small></p>
+                                            {% endif %}
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                                {% for field in comment_text_form.hidden_fields %}
+                                    <div class="input-group">
+                                        {{ field }}
+                                    </div>
+                                {% endfor %}
+                                {% for field in comment_text_form.non_field_errors %}
+                                    <div class="form-group has-error has-feedback">
+                                        <div class="controls">
+                                            <span class="help-block">
+                                                {{ field }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </form>
+                        </div>
+                        <hr>
+                        <div class="comment_of_status" id="comment_of_status_{{ post.id }}">
+                            <ul class="comments_list">
+                                {% for each in post.comments.all %}
+                                <li>
+                                    <div class="image_of_comment_user">
+                                        <img src="http://placekitten.com/50/50" />
+                                        <span class="username_text">{{ each.user }} </span>
+                                        {% now "Y-m-d" as todays_date %}
+                                        {% if each.created_at|date:"Y-m-d" == todays_date %}
+                                            <span class="date_time_text">{{ each.created_at|timesince }} ago</span>
+                                        {% else %}
+                                            <span class="date_time_text">on {{ post.created_at|date:"D d M Y" }}</span>
+                                        {% endif %}
+                                    </div>
+                                    <div class="comment_text">
+                                        <p class="">{{ each.comment_text }}</p>
+                                    </div>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    {% endfor %}
+{% else %}
+    <input type="hidden" class="data" value="0" />
+{% endif %}
+<input type="hidden" name="last_item_id" value="{{ last_item_id }}">

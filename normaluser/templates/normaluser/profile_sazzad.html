@@ -1,0 +1,217 @@
+{% extends "layout.html" %}
+{% block title %} Profile {% endblock %}
+{% load static from staticfiles %}
+{% block content %}
+    <div id="home-page">
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-12"><h1>{{ user.username }}</h1></div>
+            </div>
+            <div class="row">
+                <div class="col-sm-3"><!--left col-->
+                    <div class="text-center">
+                        {% if profile_data.profile_photo == '' %}
+                            <img src="{% static "normaluser/images/avatar_2x.png" %}" class="avatar img-circle img-thumbnail" alt="avatar">
+                        {% else %}
+                            <img src="{% static profile_data.profile_photo.url %}" width="180" height="180" alt="avatar">
+                        {% endif %}
+                        <h6>Upload a different photo...</h6>
+                        <form enctype="multipart/form-data" method="post" action="{% url 'normaluser:upload_profile_image' %}">
+                            {% csrf_token %}
+                            {% for field in image_form %}
+                                {% if field.errors %}
+                                    <div class="form-group has-error has-feedback">
+                                        <label class="control-label">{{ field.label }}</label>
+                                        <div class="controls">{{ field }}
+                                            <span class="help-block">
+                                                {% for error in  field.errors %}{{ error }}{% endfor %}
+                                            </span>
+                                        </div>
+                                    </div>
+                                {% else %}
+                                    <div class="form-group">
+                                        <label class="control-label">{{ field.label }} *</label>
+                                        <div class="controls">{{ field }}
+                                            {% if field.help_text %}
+                                                <p class="help-inline"><small>{{ field.help_text }}</small></p>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                            <button type="submit" class="btn btn-success">Upload photo</button>
+                        </form>
+                    </div>
+                    </hr><br>
+                    <ul class="list-group">
+                        <li class="list-group-item text-muted">Activity <i class="fa fa-dashboard fa-1x"></i></li>
+                        <li class="list-group-item text-right"><span class="pull-left"><strong>Posts</strong></span> {{ posts_count }}</li>
+                        <li class="list-group-item text-right"><span class="pull-left"><strong>Friends</strong></span> {{ friends_count }}</li>
+                    </ul>
+                </div>
+                <div class="col-sm-9">
+                    <ul class="nav nav-tabs">
+                        <li class="active"><a data-toggle="tab" href="#view">View</a></li>
+                        <li><a data-toggle="tab" href="#edit">Edit</a></li>
+                        <!--<li><a data-toggle="tab" href="#settings">Menu 2</a></li>-->
+                    </ul>
+
+
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="view">
+                            <table class="table table-user-information">
+                                <tbody>
+                                    <tr>
+                                        <td>Username:</td>
+                                        <td>{{ user.username }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>First name</td>
+                                        <td>{{ user.first_name }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Last name</td>
+                                        <td>{{ user.last_name }}</td>
+                                    </tr>
+
+                                    <tr>
+                                        <td>Gender</td>
+                                        <td>
+                                            {% if profile_data.gender == 'm' %}
+                                            Male
+                                            {% else %}
+                                            Female
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Home Address</td>
+                                        <td>{{ profile_data.address }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Email</td>
+                                        <td><a href="{{ user.email }}">{{ user.email }}</a></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Phone Number</td>
+                                        <td>{{ profile_data.phone_number }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <hr>
+                        </div><!--/tab-pane-->
+                        <div class="tab-pane" id="edit">
+
+                            <h2>Update</h2>
+                            <hr>
+                            <form class="form" action="{% url 'normaluser:update_profile' %}" method="post" id="profileUpdateForm">
+                                {% csrf_token %}
+                                {% for field in user_form %}
+                                    {% if field.errors %}
+                                        <div class="form-group has-error has-feedback">
+                                            <label class="control-label">{{ field.label }}</label>
+                                            <div class="controls">{{ field }}
+                                                <span class="help-block">
+                                                    {% for error in  field.errors %}{{ error }}{% endfor %}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    {% else %}
+                                        <div class="form-group">
+                                            <label class="control-label">{{ field.label }} *</label>
+                                            <div class="controls">{{ field }}
+                                                {% if field.help_text %}
+                                                    <p class="help-inline"><small>{{ field.help_text }}</small></p>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+
+                                {% for field in user_form.non_field_errors %}
+                                    <div class="form-group has-error has-feedback">
+                                        <div class="controls">
+                                            <span class="help-block">
+                                                {{ field }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+
+                                {% for field in profile_form %}
+                                    {% if field.errors %}
+                                        <div class="form-group has-error has-feedback">
+                                            <label class="control-label">{{ field.label }}</label>
+                                            <div class="controls">{{ field }}
+                                                <span class="help-block">
+                                                    {% for error in  field.errors %}{{ error }}{% endfor %}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    {% else %}
+                                        {% if field.label is 'Gender' %}
+                                            <label class="radio-inline"><input type="radio" name="optradio" checked>Option 1</label>
+                                        {% else %}
+                                            <div class="form-group">
+                                                <label class="control-label">{{ field.label }}</label>
+                                                <div class="controls">{{ field }}
+                                                    {% if field.help_text %}
+                                                        <p class="help-inline"><small>{{ field.help_text }}</small></p>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        {% endif %}
+                                    {% endif %}
+                                {% endfor %}
+                                <div class="form-group">
+                                    <label class="control-label">Date of birth</label>
+                                    <div class="input-group">
+                                        <span class="input-group-btn">
+                                            <select class="form-control" name="day" id="day">
+                                                <option value="">Day</option>
+                                                {% for day in days %}
+                                                    {% if birth_day == day %}
+                                                        <option selected="selected" value="{{ day }}">{{ day }}</option>
+                                                    {% else %}
+                                                        <option value="{{ day }}">{{ day }}</option>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </select>
+                                        </span>
+                                        <span class="input-group-btn">
+                                            <select class="form-control" name="month" id="month">
+                                                <option value="">Month</option>
+                                                {% for month in months %}
+                                                    {% if birth_month == month %}
+                                                        <option selected="selected" value="{{ month }}">{{ month }}</option>
+                                                    {% else %}
+                                                        <option value="{{ month }}">{{ month }}</option>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </select>
+                                        </span>
+                                        <span class="input-group-btn">
+                                            <select class="form-control" name="year" id="year">
+                                                <option value="">Year</option>
+                                                {% for year in years %}
+                                                    {% if birth_year == year %}
+                                                        <option selected="selected" value="{{ year }}">{{ year }}</option>
+                                                    {% else %}
+                                                        <option value="{{ year }}">{{ year }}</option>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </select>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <button type="submit" class="btn btn-success">Submit</button>
+                                </div>
+                            </form>
+                        </div><!--/tab-pane-->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,48 @@
+{% load static %}
+<!doctype html>
+<html>
+    <head>
+        <title>
+        {% block title %}
+        {% endblock %}
+        </title>
+        <!--favicon section-->
+        <link rel="apple-touch-icon" sizes="180x180" href="{% static 'bwa2018djangoproject/frontend/images/favicon/apple-touch-icon.png' %}/">
+        <link rel="icon" type="image/png" sizes="32x32" href="{% static 'bwa2018djangoproject/frontend/images/favicon/favicon-32x32.png' %}/">
+        <link rel="icon" type="image/png" sizes="16x16" href="{% static 'bwa2018djangoproject/frontend/images/favicon/favicon-16x16.png' %}/">
+        <link rel="mask-icon" href="{% static 'bwa2018djangoproject/frontend/images/favicon/safari-pinned-tab.svg' %}/" color="#5bbad5"/>
+        <meta name="msapplication-TileColor" content="#da532c">
+        <meta name="theme-color" content="#ffffff">
+        <!--favicon section-->
+
+        <link rel="stylesheet" type="text/css" href="{% static 'bwa2018djangoproject/bootstrap/css/bootstrap.css' %}" >
+        <link rel="stylesheet" type="text/css" href="{% static 'bwa2018djangoproject/bootstrap/css/bootstrap-theme.css' %}" >
+        <link rel="stylesheet" type="text/css" href="{% static 'bwa2018djangoproject/frontend/css/font-awesome.min.css' %}" >
+        <link rel="stylesheet" type="text/css" href="{% static 'bwa2018djangoproject/frontend/css/style.css' %}" >
+
+        <!-- jQuery library -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+        <script src="{% static 'bwa2018djangoproject/bootstrap/js/bootstrap.js' %}"></script>
+        <script src="{% static 'bwa2018djangoproject/frontend/js/registration.js' %}"></script>
+
+    {% block static %}{% endblock %}
+    </head>
+<body class="bg-gray">
+    <div class="container">
+    {% if messages %}
+        <div class="row">
+            <div class="col-sm-12 text-center">
+            {% for message in messages %}
+            <div data-alert class="alert alert-{% if message.tags %}{{ message.tags }}{% endif %}">
+                {{ message }}
+            </div>
+            {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+    {% block content %}
+    {% endblock %}
+    </div>
+</body>
+</html>

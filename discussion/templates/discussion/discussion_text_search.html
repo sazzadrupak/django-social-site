@@ -1,0 +1,28 @@
+{% load static from staticfiles %}
+{% block static %}
+{% endblock %}
+
+{% now "Y-m-d" as todays_date %}
+{% if discussion_heads %}
+    {% for discussion_head in discussion_heads %}
+        <div class="chat_list" id="chat_head_{{ discussion_head.discussion_head_id }}" >
+            <div class="chat_head" data-discussion_head_id="{{ discussion_head.discussion_head_id }}">
+                <div class="user_img">
+                    <img width="40" height="40" src="{% static "normaluser/images/avatar_2x.png" %}" alt="avatar">
+                </div>
+                <div class="head_item">
+
+                    <h5>{{ discussion_head.discussion_head.head_name }}</h5>
+                    {% if discussion_head.message.updated_at|date:"Y-m-d" == todays_date %}
+                        <span class="chat_date">{{ discussion_head.message.updated_at|timesince }} ago</span>
+                    {% else %}
+                        <span class="chat_date">{{ discussion_head.message.updated_at|date:"N j, o," }}
+                        {{ discussion_head.message.updated_at|time:"P"}}
+                        </span>
+                    {% endif %}
+                    <p>{{ discussion_head.sender.first_name }} {{ discussion_head.sender.last_name }}: {{ discussion_head.message|truncatechars:30 }}</p>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+{% endif %}

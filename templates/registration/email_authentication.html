@@ -1,0 +1,9 @@
+<p>
+    Thanks for signing up with Social site! You must follow this link to activate your account:
+    <a type="button"
+       href="{% url 'email_authenticate_registration' email_validation_code=email_authentication_code %}"
+       class="btn btn-success">
+        https://{{ domain }}{% url 'email_authenticate_registration' email_validation_code=email_authentication_code %}
+    </a>
+
+</p>

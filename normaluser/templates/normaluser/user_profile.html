@@ -1,0 +1,182 @@
+{% extends "layout.html" %}
+{% block title %} Your Profile {% endblock %}
+{% load static from staticfiles %}
+{% block static %}
+    <script src="{% static '/home/js/home.js' %}"></script>
+{% endblock %}
+{% block content %}
+    <div id="home-page">
+        <div class="container">
+            <div class="row">
+                <!-- profile info section starts here-->
+                <div class="col-sm-4"><!--left col-->
+                    <div class="align-center">
+                        {% if profile_data.profile_photo == '' %}
+                            <img src="{% static "normaluser/images/avatar_2x.png" %}" class="user-profile-img img-fluid img-thumbnail" alt="avatar">
+                        {% else %}
+                            <img src="{% static profile_data.profile_photo.url %}"  class="user-profile-img img-fluid img-thumbnail" alt="avatar">
+                        {% endif %}
+                    </div>
+                    </hr>
+                    <div class="profile-info">
+                        <div class="card-block">
+                            <div class="card-title align-center">
+                                {{ profile_data.last_name }} {{ profile_data.first_name }}
+                            </div>
+                            <p class="">
+                                {% if profile_data.gender == 'm' %}
+                                    <i class="fa fa-male fa-lg fa-fw"></i> Male
+                                {% else %}
+                                    <i class="fa fa-female fa-lg fa-fw"></i> Female
+                                {% endif %}
+                            </p>
+                            <p><i class="fa fa-address-card fa-fw"></i> {{ profile_data.address }}</p>
+                            <p><i class="fa fa-envelope fa-fw"></i> <a href="mailto:{{ profile_data.email }}">{{ profile_data.email }}</a></p>
+                            {%  if is_friend > 0 %}
+                            <p><i class="fa fa-phone fa-fw"></i>{{ profile_data.phone_number }}</p>
+                            <div class="card-footer">
+                                <span class="badge badge-success">{{ user_discussion_heads|length }} Discussion head</span>
+                                <span class="badge badge-warning">{{ posts_count }} Posts</span>
+                                <span class="badge badge-info"> {{ friends_count }} Friends</span>
+                            </div>
+                            {% endif %}
+                       </div>
+                    </div>
+
+                    <div class="discussion-info">
+                        <div class="card-block">
+                            <div class="card-title align-center">
+                                Discussion head lists
+                            </div>
+                            {% for user_discussion_head in user_discussion_heads %}
+                                <p>
+                                    {{ user_discussion_head.head_name }}
+                                </p>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                <!-- profile info section ends here-->
+
+                <!-- user posts info section starts here-->
+                <div class="col-sm-8">
+                    <h3>Users posts</h3>
+                    <div class="status-show">
+                    {% if posts|length > 0 %}
+                        {% for post in posts %}
+                            <div class="panel panel-default">
+                                <div class="panel-body">
+                                    <section class="post-heading">
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div class="media">
+                                                    <div class="media-left">
+                                                        <a href="#">
+                                                            {% if post.user.normaluser.profile_photo == '' %}
+                                                                <img src="{% static "normaluser/images/avatar_2x.png" %}" width="40" height="40" alt="avatar">
+                                                            {% else %}
+                                                                <img src="{% static post.user.normaluser.profile_photo.url %}" width="40" height="40" alt="avatar">
+                                                            {% endif %}
+                                                        </a>
+                                                    </div>
+                                                    <div class="media-body">
+                                                        <a href="javascript:void(0)" class="anchor-username">
+                                                            <h4 class="media-heading">
+                                                                {% if post.user.id == user.id %}
+                                                                    {{ post.user.first_name }} {{ post.user.last_name }}
+                                                                {% else %}
+                                                                    <a href="{% url 'normaluser:other' post.user  %}">
+                                                                        {{ post.user.first_name }} {{ post.user.last_name }}
+                                                                    </a>
+                                                                {% endif %}
+                                                            </h4>
+                                                        </a>
+                                                        {% now "Y-m-d" as todays_date %}
+                                                        {% if post.created_at|date:"Y-m-d" == todays_date %}
+                                                            <a href="javascript:void(0)" class="anchor-time">{{ post.created_at|timesince }} ago</a>
+                                                        {% else %}
+                                                            <a href="javascript:void(0)" class="anchor-time">{{ post.created_at|date:"Y-m-d" }}</a>
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </section>
+                                    <section class="post-body">
+                                        <p>{{ post.post_text }}</p>
+                                    </section>
+                                    <section class="post-footer">
+                                        <hr>
+                                        <div class="post-footer-comment-wrapper">
+                                            <div class="comment_of_status" id="comment_of_status_{{ post.id }}">
+                                                <ul class="comments_list">
+                                                    {% for each in post.comments.all|dictsort:'created_at' %}
+                                                    <li id="comment_li_{{ each.id }}">
+                                                        <div class="image_of_comment_user">
+                                                            {% if each.user.normaluser.profile_photo == '' %}
+                                                                <img src="{% static "normaluser/images/avatar_2x.png" %}" alt="avatar">
+                                                            {% else %}
+                                                                <img src="{% static each.user.normaluser.profile_photo.url %}" alt="avatar">
+                                                            {% endif %}
+                                                            <span class="username_text">
+                                                                {% if each.user.id == user.id %}
+                                                                    {{ each.user.first_name }} {{ each.user.last_name }}
+                                                                {% else %}
+                                                                    <a href="{% url 'normaluser:other' each.user  %}">
+                                                                        {{ each.user.first_name }} {{ each.user.last_name }}
+                                                                    </a>
+                                                                {% endif %}
+                                                            </span>
+                                                            {% now "Y-m-d" as todays_date %}
+                                                            {% if each.created_at|date:"Y-m-d" == todays_date %}
+                                                                <span class="date_time_text">{{ each.created_at|timesince }} ago</span>
+                                                            {% else %}
+                                                                <span class="date_time_text">on {{ post.created_at|date:"D d M Y" }}</span>
+                                                            {% endif %}
+                                                        </div>
+                                                        <div class="comment_text">
+                                                            <p id="comment_area_{{ each.id }}" style="float: left;">
+                                                                {{ each.comment_text }}
+                                                            </p>
+                                                            {% if user.id == post.user_id or request.user.id == each.user_id %}
+                                                            <span style="float: right;">
+                                                                <a href="javascript:void(0)" data-toggle="popover-comment" data-placement="bottom" data-toggle="popover" data-post_id="{{ each.id }}">
+                                                                    <i class="fa fa-ellipsis-h"></i>
+                                                                </a>
+                                                            </span>
+                                                            {% endif %}
+                                                            <div id="popover-comment-content-{{ each.id }}" style="display: none">
+                                                                <ul class="list-group custom-popover">
+                                                                    {% if request.user.id == each.user_id %}
+                                                                        <li class="list-group-item">
+                                                                            <a class="edit_comment_event" data-comment_id="{{ each.id }}">Edit</a>
+                                                                        </li>
+                                                                    {% endif %}
+                                                                    <li class="list-group-item">
+                                                                        <a
+                                                                            class="delete_comment"
+                                                                            data-post_id="{{ post.id }}"
+                                                                            data-comment_id="{{ each.id }}">Delete
+                                                                        </a>
+                                                                    </li>
+                                                                </ul>
+                                                            </div>
+                                                        </div>
+                                                    </li>
+                                                    {% endfor %}
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </section>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                    {% endif %}
+                </div>
+                </div>
+                <!-- user posts section starts here-->
+            </div>
+        </div>
+    </div>
+{% endblock %}

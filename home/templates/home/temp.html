@@ -1,0 +1,221 @@
+{% extends "layout.html" %}
+{% block title %} Home {% endblock %}
+{% load static from staticfiles %}
+{% block static %}
+	<link rel="stylesheet" type="text/css" href="{% static '/home/css/home.css' %}">
+    <script src="{% static '/home/js/home.js' %}"></script>
+{% endblock %}
+{% block content %}
+<div id="home-page">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-8 activity">
+                <div class="status-upload">
+                    <form role="form" href="" class="form-horizontal" method="post">
+                        {% csrf_token %}
+                        {% for field in status_text_form %}
+                            {% if field.errors %}
+                                <div class="form-group error">
+                                    <div class="controls">{{ field }}
+                                        <span class="help-inline">
+                                            {% for error in  field.errors %}{{ error }}{% endfor %}
+                                        </span>
+                                    </div>
+                                </div>
+                            {% else %}
+                                <div class="form-group">
+                                    <div class="controls">{{ field }}
+                                        {% if field.help_text %}
+                                            <p class="help-inline"><small>{{ field.help_text }}</small></p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                        {% for field in status_text_form.non_field_errors %}
+                            <div class="form-group has-error has-feedback">
+                                <div class="controls">
+                                    <span class="help-block">
+                                        {{ field }}
+                                    </span>
+                                </div>
+                            </div>
+                        {% endfor %}
+                        <div class="form-group text-right">
+                            <button type="submit" class="btn btn-info">Post update</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="status-show">
+                    {% if posts|length > 0 %}
+                        {% for post in posts %}
+                            <div class="panel panel-default">
+                                <div class="panel-body">
+                                    <section class="post-heading">
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div class="media">
+                                                    <div class="media-left">
+                                                        <a href="#">
+                                                            {% if post.user.normaluser.profile_photo == '' %}
+                                                                <img src="{% static "normaluser/images/avatar_2x.png" %}" width="40" height="40" alt="avatar">
+                                                            {% else %}
+                                                                <img src="{% static post.user.normaluser.profile_photo.url %}" width="40" height="40" alt="avatar">
+                                                            {% endif %}
+                                                        </a>
+                                                    </div>
+                                                    <div class="media-body">
+                                                        <a href="javascript:void(0)" class="anchor-username">
+                                                            <h4 class="media-heading">
+                                                                <!--<a href="{% url 'normaluser:other' post.user  %}">
+                                                                    {{ post.user }}
+                                                                </a>-->
+                                                            </h4>
+                                                        </a>
+                                                        {% now "Y-m-d" as todays_date %}
+                                                        {% if post.created_at|date:"Y-m-d" == todays_date %}
+                                                            <a href="javascript:void(0)" class="anchor-time">{{ post.created_at|timesince }} ago</a>
+                                                        {% else %}
+                                                            <a href="javascript:void(0)" class="anchor-time">{{ post.created_at|date:"Y-m-d" }}</a>
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </section>
+                                    <section class="post-body">
+                                        <p>{{ post.post_text }}</p>
+                                    </section>
+                                    <section class="post-footer">
+                                        <hr>
+                                        <div class="post-footer-comment-wrapper">
+                                            <div class="comment-form">
+                                                <form role="form" class="form-horizontal comment_submit" method="post" id="comment_add_{{ post.id }}">
+                                                    {% csrf_token %}
+                                                    <input type="hidden" name="post_id" value="{{ post.id }}" />
+                                                    {% for field in comment_text_form.visible_fields %}
+                                                        {% if field.errors %}
+                                                            <div class="input-group error">
+                                                                {{ field }}
+                                                                <span class="input-group-btn">
+                                                                    <button class="btn btn-info" type="submit">Comment</button>
+                                                                </span>
+                                                                <span class="help-inline">
+                                                                    {% for error in  field.errors %}{{ error }}{% endfor %}
+                                                                </span>
+                                                            </div>
+                                                        {% else %}
+                                                            <div class="input-group">
+                                                                {{ field }}
+                                                                <span class="input-group-btn">
+                                                                    <button class="btn btn-info" type="submit">Comment</button>
+                                                                </span>
+                                                                {% if field.help_text %}
+                                                                    <p class="help-inline"><small>{{ field.help_text }}</small></p>
+                                                                {% endif %}
+                                                            </div>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                    {% for field in comment_text_form.hidden_fields %}
+                                                        <div class="input-group">
+                                                            {{ field }}
+                                                        </div>
+                                                    {% endfor %}
+                                                    {% for field in comment_text_form.non_field_errors %}
+                                                        <div class="form-group has-error has-feedback">
+                                                            <div class="controls">
+                                                                <span class="help-block">
+                                                                    {{ field }}
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    {% endfor %}
+                                                </form>
+                                            </div>
+                                            <hr>
+                                            <div class="comment_of_status" id="comment_of_status_{{ post.id }}">
+                                                <ul class="comments_list">
+                                                    {% for each in post.comments.all %}
+                                                    <li>
+                                                        <div class="image_of_comment_user">
+                                                            {% if each.user.normaluser.profile_photo == '' %}
+                                                                <img src="{% static "normaluser/images/avatar_2x.png" %}" alt="avatar">
+                                                            {% else %}
+                                                                <img src="{% static each.user.normaluser.profile_photo.url %}" alt="avatar">
+                                                            {% endif %}
+                                                            <span class="username_text">
+                                                                <!--<a href="{% url 'normaluser:other' each.user  %}">
+                                                                    {{ each.user }}
+                                                                </a>-->
+                                                            </span>
+                                                            {% now "Y-m-d" as todays_date %}
+                                                            {% if each.created_at|date:"Y-m-d" == todays_date %}
+                                                                <span class="date_time_text">{{ each.created_at|timesince }} ago</span>
+                                                            {% else %}
+                                                                <span class="date_time_text">on {{ post.created_at|date:"D d M Y" }}</span>
+                                                            {% endif %}
+                                                        </div>
+                                                        <div class="comment_text">
+                                                            <p class="">{{ each.comment_text }}</p>
+                                                        </div>
+                                                    </li>
+                                                    {% endfor %}
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </section>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-md-4 other-user-list">
+                <div class="panel panel-default user_panel">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Other Users List</h3>
+                    </div>
+                    <div class="panel-body">
+                        <div class="table-container">
+                            <table class="table-users table" border="0">
+                                <tbody>
+                                {% for other_user in other_users %}
+
+                                    <tr>
+                                        <td width="10">
+                                            {% if other_user.normaluser.profile_photo == '' %}
+                                                <img src="{% static "normaluser/images/avatar_2x.png" %}" width="40" height="40" alt="avatar">
+                                            {% else %}
+                                                <img src="{% static other_user.normaluser.profile_photo.url %}" width="40" height="40" alt="avatar">
+                                            {% endif %}
+                                        </td>
+                                        <td class="user_name_in_cell">
+                                            <!--<a href="{% url 'normaluser:other' other_user.username  %}">
+                                                {{ other_user.username }}
+                                            </a>-->
+                                        </td>
+                                        <td class="table_cell_form">
+                                            <form method="post" action="{% url 'friends:create_friendship' %}">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="user_two_id" value="{{ other_user.id }}" />
+                                                <input type="hidden" name="user_one_id" value="{{ user.id }}" />
+                                                <input type="hidden" name="lead_user_id" value="{{ user.id }}" />
+                                                <div class="form-group" style="margin-bottom: 0px !important;"> <!-- Submit button !-->
+                                                    <button type="submit" class="btn btn-primary">Send request</button>
+                                                </div>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

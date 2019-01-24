@@ -1,0 +1,72 @@
+{% load static from staticfiles %}
+{% now "Y-m-d" as todays_date %}
+<div class="loader"></div>
+<div class="head_msg_history" id="head_msg_history_{{ discussion_head_id }}">
+<input type="hidden" name="discussion_head_id" value="{{ discussion_head_id }}">
+    {% if chats|length > 0 %}
+        {% for chat in chats %}
+            {% if chat.sender_id == user.id %}
+                <div class="outgoing_message">
+                    <div class="sent_message">
+                        <p>{{ chat.message }}</p>
+                        {% if chat.updated_at|date:"Y-m-d" == todays_date %}
+                            <span class="sent_time_date">{{ chat.updated_at|timesince }} ago</span>
+                        {% else %}
+                            <span class="sent_time_date">{{ chat.updated_at|date:"N j, o," }}
+                                {{ chat.updated_at|time:"P"}}
+                            </span>
+                        {% endif %}
+                    </div>
+                </div>
+            {% else %}
+                <div class="incoming_msg">
+                    <div class="incoming_msg_img">
+                        {% if chat.sender.normaluser.profile_photo == '' %}
+                            <img width="40" height="40" src="{% static "normaluser/images/avatar_2x.png" %}" alt="{{ chat.sender.first_name }} {{ chat.sender.last_name }}">
+                        {% else %}
+                            <img width="40" height="40" src="{% static chat.sender.normaluser.profile_photo.url %}" alt="{{ chat.sender.first_name }} {{ chat.sender.last_name }}">
+                        {% endif %}
+                    </div>
+                    <div class="received_message">
+                        <div class="received_message_width">
+                            <span class="sender_name">{{ chat.sender.first_name }} {{ chat.sender.last_name }}</span>
+                            <p>{{ chat.message }}</p>
+                            {% if chat.updated_at|date:"Y-m-d" == todays_date %}
+                                <span class="sent_time_date">{{ chat.updated_at|timesince }} ago</span>
+                            {% else %}
+                                <span class="sent_time_date">{{ chat.updated_at|date:"N j, o," }}
+                                    {{ chat.updated_at|time:"P"}}
+                                </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+</div>
+<div class="type_new_message">
+    <form method="post" class="add_chat" name="add_chat">
+        {% csrf_token %}
+        <!--<div class="input_message_write">
+            <input type="text" class="write_msg" name="message" placeholder="Type a message">
+
+        </div>-->
+        <div class="input_message_write">
+        {% for field in discussion_form %}
+            {% if field.errors %}
+                {{ field }}
+                <span class="help-inline">
+                    {% for error in  field.errors %}{{ error }}{% endfor %}
+                </span>
+            {% else %}
+                {{ field }}
+                {% if field.help_text %}
+                    <p class="help-inline"><small>{{ field.help_text }}</small></p>
+                {% endif %}
+            {% endif %}
+        {% endfor %}
+        <button class="message_send_btn" type="submit"><i class="fa fa-paper-plane-o" aria-hidden="true"></i></button>
+        </div>
+    </form>
+</div>

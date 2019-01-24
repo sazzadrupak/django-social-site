@@ -1,0 +1,25 @@
+<form method="post" role="form" class="form-horizontal edit_chat" name="edit_chat">
+    {% csrf_token %}
+    <input type="hidden" name="chat_id" value="{{ chat_id }}" />
+    <div class="input-group input_message_write error">
+    {% for field in message_text_form %}
+        {% if field.errors %}
+            {{ field }}
+            <span class="help-inline">
+                {% for error in  field.errors %}{{ error }}{% endfor %}
+            </span>
+        {% else %}
+            {{ field }}
+            {% if field.help_text %}
+                <p class="help-inline"><small>{{ field.help_text }}</small></p>
+            {% endif %}
+        {% endif %}
+    {% endfor %}
+        <span class="input-group-btn">
+            <button class="btn btn-info" type="submit">Update</button>
+        </span>
+        <span class="input-group-btn">
+            <button class="btn btn-warning cancel_message_edit" type="button" data-head_id="{{ head_id }}" data-chat_id="{{ chat_id }}">Cancel</button>
+        </span>
+    </div>
+</form>

@@ -1,0 +1,14 @@
+{% extends "layout.html" %}
+{% block title %} Not Found {% endblock %}
+{% load static from staticfiles %}
+{% block content %}
+<div id="no-discussion-page">
+    <div class="container">
+        <div class="no_discussion_div">
+            <div class="alert alert-danger alert-dismissible" role="alert">
+                <strong>Warning!</strong> The discussion you are looking is not found.
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
